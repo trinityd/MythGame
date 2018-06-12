@@ -2,6 +2,7 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.sound.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     
     <style>
@@ -22,9 +23,44 @@
             user-select: none;
         }
         #canvas {
+            width: 600;
+            height: 400;
             border: 3px solid grey;
             border-radius: 5px;
+            position: relative;
             margin: 0 auto;
+            /*background-size: 50%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: url('Assets/Pics/loading.gif');
+            background-color: white;*/
+        }
+        #infopopup {
+            border: 2px solid grey;
+            border-radius: 2px;
+            position: absolute;
+            margin: 0 auto;
+            z-index: 2;
+            background-color: #363946;
+            color: white;
+            padding: 5px;
+            display: none;
+        }
+        #ruleswrap {
+            font-family: 'AncientGeek';
+            font-size: 150%;
+            margin-top: 5px;
+            user-select: none;
+            display: none;
+        }
+        #rules {
+            font-family: 'Comic Sans';
+            border: 3px solid black;
+            border-radius: 3px;
+            font-size: 80%;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: white;
         }
     	body {
     		background-image: url('Assets/Patterns/pattern2.jpg');
@@ -33,8 +69,22 @@
 </head>
 
 <body>
-    <div id="title" class="center">Hercules!</div>
-    <div class="center"><div id="canvas"></div></div>
+    <div id="title" class="center">
+        <b>Hercules</b>!
+    </div>
+    <div class="center">
+        <div id="canvas">
+            <span class="center" id="infopopup">
+                Background:<br>
+                Hercules (sometimes spelled as Herakles) was a great Greek mythological hero. He was born of Zeus, the god of storms, and a beautiful mortal woman named Alcmene, while Alcmene’s husband was away. Zeus was quite the homewrecker! Hera, Zeus’ wife, was so upset that she attempted to have Zeus killed by snakes in his crib, but he fought them off. He grew to be a strong, capable young man, eventually married a woman names Megara, and had two children. Hera, spiteful as usual, caused Hercules to go mad and murder his wife and children. When Hercules came to his senses afterwards, he was understandably horrified at what he’d done, and asked the sun god Apollo to “rid him of his pollution” (Perseus Project). Apollo ordered Hercules to perform twelve labors while serving Eurystheus, the king of the city of Tiryns. Now, after some hard labors (in a different order than the myth), you, as Hercules, must finish your last three labors to redeem your soul.<br>
+                (Click here to exit)
+            </span>
+        </div>
+    </div>
+    <div class="center" id="ruleswrap">
+        Rules:
+        <div class="center" id="rules"></div>
+    </div>
     <script language="javascript" src="minigame0.js"></script>
     <script language="javascript" src="minigame1.js"></script>
     <script language="javascript" src="minigame2.js"></script>

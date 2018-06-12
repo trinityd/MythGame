@@ -8,8 +8,9 @@ function checkDoneClearing() {
 		}
 	}
 
+
 	let perc = count / pixels.length*40;
-	if(perc >= .099) {
+	if(perc >= .99) {
 		winGame(0);
 	}
 }

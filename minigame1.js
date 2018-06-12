@@ -35,6 +35,7 @@ function showArrows() {
 	for(let i = 0; i < arrows.length; i++) {
 		if(arrows[i].width >= 30) arrows[i].resize(.95);
 		else if(arrows[i].hit && !arrows[i].checked && boar.contains(arrows[i].point.x, arrows[i].point.y)) {
+			oofSound.play();
 			healthBar.width -= totalHP/6;
 			arrows[i].checked = true;
 			if(healthBar.width <= 10) {

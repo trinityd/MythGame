@@ -1,6 +1,7 @@
 let gameDivID = 'canvas';
 let canvasWidth = 600;
 let canvasHeight = 400;
+let trumpetImg, oofSound, winSound;
 
 function preload() {
 	boarImg = loadImage('Assets/Pics/boar.png');
@@ -8,13 +9,26 @@ function preload() {
 	headRightImg = loadImage('Assets/Pics/headRight.png');
 	headLeftImg = loadImage('Assets/Pics/headLeft.png');
 	appleImg = loadImage('Assets/Pics/apple.png');
+	trumpetImg = loadImage('Assets/Pics/trumpet.png');
+
+	oofSound = loadSound('Assets/Sound/oof.wav');
+	winSound = loadSound('Assets/Sound/win.wav');
 }
 
 function setup() {
+	$('#' + gameDivID).css('background-image', 'none');
 	$('#' + gameDivID).width(canvasWidth);
 	$('#' + gameDivID).height(canvasHeight);
 	let canvas = createCanvas(canvasWidth, canvasHeight);
 	canvas.parent(gameDivID);
+	canvas.elt.style.position = 'relative';
+	canvas.elt.style.zIndex = 1;
+
+	$('#infopopup').width(canvasWidth - 50);
+	$('#infopopup').click(hideInfoPopup);
+	hideInfoPopup();
+
+	$('#rules').width(canvasWidth);
 
 	// Minigame 1
 	healthBar = new Rectangle(width/2, 20, totalHP, 30, 'green', true);
@@ -105,10 +119,12 @@ function mainMenu() {
 	inMainMenu = true;
 	gameSelected = -1;
 	loadingGame = true;
+	updateRules();
+
 	rectMode(CORNER);
 	let mainMenuColor = '#C4BCAB';
 	fill(mainMenuColor);
-	let mainMenuBox = rect(0, 0, width, height);
+	let mainMenuBox = rect(-1, -1, width+1, height+1);
 
 	textSize(height/15);
 	textStyle(BOLD);
@@ -124,8 +140,12 @@ function mainMenu() {
 	let numOptions = 3
 	let optionSpacing = 10 + optionHeight;
 	options = []
-	for(let i = 0; i < 3; i++) {
+	for(let i = 0; i < 4; i++) {
 		options.push(new Rectangle(width/2, height/2 + i*optionSpacing, optionWidth, optionHeight, 'black'));
+		if(i == 3) {
+			options[i].color = "grey";
+			options[i].y+=8;
+		}
 		options[i].show();
 	}
 
@@ -141,6 +161,8 @@ function mainMenu() {
 	text('Boar Capturing', options[1].x, options[1].y + offset);
 	textSize(optionHeight/2.2);
 	text('Apple Stealing', options[2].x, options[2].y + offset);
+	textSize(optionHeight/2.2);
+	text('The Story', options[3].x, options[3].y + offset);
 	for(let i = 0; i < 3; i++) {
 		if(wonGames[i]) {
 			fill('green');
@@ -151,7 +173,10 @@ function mainMenu() {
 }
 
 function keyPressed() {
-	if(keyCode === ESCAPE) {
+	if(keyCode === TAB && gameSelected >= 0) {
+		winGame(gameSelected);
+	}
+	else if(keyCode === ESCAPE) {
 		mainMenu();
 	}
 	else if(keyCode === BACKSPACE) {
@@ -165,9 +190,14 @@ function keyPressed() {
 }
 
 function mousePressed() {
+	if(gameSelected == -2) return;
 	if(inMainMenu) {
 		for(let i = 0; i < options.length; i++) {
 			if(options[i].contains(mouseX, mouseY)) {
+				if(i == 3) {
+					showInfoPopup();
+					return;
+				}
 				gameSelected = i;
 				inMainMenu = false;
 				startGame(gameSelected);
@@ -184,11 +214,14 @@ function mousePressed() {
 }
 
 function startGame(idx) {
+	updateRules();
 	if(idx == 0) {
 		background(137, 81, 8);
 	}
 	else if(idx == 1) {
 		shot = 0;
+		totalHP = 300;
+		arrows = [];
 		background(255);
 		boarImg.resize(100, 0);
 		boar.width = boarImg.width-10;
@@ -207,17 +240,87 @@ function startGame(idx) {
 }
 
 function winGame(idx) {
+	if(idx < 0) return;
 	if(idx == 1) arrows = [];
 	else if(idx == 2) apples = [];
 	if(idx >= 0) wonGames[idx] = true;
+
+	let count = 0;
+	for(let i = 0; i < wonGames.length; i++)
+	{
+		if(wonGames[i] == true) count++;
+	}
+	if(count == 3) {
+		winEverything();
+		return;
+	}
+
 	mainMenu();
+}
+
+function winEverything() {
+	gameSelected = 99;
+	background(0);
+	fill('white');
+	text('You did it!', canvasWidth/2, canvasHeight/2);
+	textSize(20);
+	textFont('Comic Sans');
+	text('Enjoy living forever with the fact\nthat you murdered your wife and children.\nBut hey, Apollo said it was all good.', canvasWidth/2, canvasHeight/2 + 30);
+	
+	for(let i = 0; i < 20; i++) {
+		let w = 60;
+		let h = w;
+		let x = random(canvasWidth - w);
+		let yhalf = random(1);
+		if(yhalf <= .5) y = random(h, 170 - h);
+		else y = random(320 + h, canvasHeight - h)
+		push();
+		translate(x, y);
+		rotate(random(TWO_PI));
+		image(trumpetImg, 0, 0, w, h);
+		pop();
+	}
+	winSound.play();
+}
+
+function updateRules() {
+	if(gameSelected == -1) {
+		$('#ruleswrap').hide();
+		return;
+	}
+
+	let content;
+	if(gameSelected == 0) {
+		content = "Clear out every bit of horse doody from King Augeus' stables by clicking and dragging your mouse to spread water across the ground. Press enter to check if you're done.";
+	}
+	else if(gameSelected == 1) {
+		content = "Shoot the Erymanthian Boar with sleeper arrows by clicking and put it to sleep.";
+	}
+	else if(gameSelected == 2) {
+		content = "Steal the apples of the Hesperides by clicking on them while the Herispede isn't looking.";
+	}
+	else return;
+	$('#rules').text(content);
+	$('#ruleswrap').show();
+}
+
+function showInfoPopup() {
+	gameSelected = -2;
+	$('#infopopup').css('left', $('#canvas').position().left + 10);
+	$('#infopopup').css('top', $('#canvas').position().top + 30);
+	$('#infopopup').show();
+}
+
+function hideInfoPopup() {
+	gameSelected = -1;
+	$('#infopopup').hide();
 }
 
 function draw() {
 	if(gameSelected == 0) {
 		if(mouseIsPressed) {
 			fill(8, 105, 137);
-			ellipse(mouseX, mouseY, 60);
+			ellipse(mouseX, mouseY, 80);
 		}
 	}
 	else if(gameSelected == 1) {
